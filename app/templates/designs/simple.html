@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ resume.role_title }} — {{ resume.personal_info.full_name if resume.personal_info else "Resume" }}</title>
+    {% if stylesheet_inline %}<style>{{ stylesheet_inline|safe }}</style>
+    {% elif stylesheet_href %}<link rel="stylesheet" href="{{ stylesheet_href }}">{% endif %}
+</head>
+<body class="{% if preview %}preview-mode{% endif %}">
+    {% if preview %}
+        <div class="preview-toolbar">
+            <a href="{{ url_for('main.edit_resume', resume_id=resume.id) }}">← Back to editor</a>
+            <span>Resume preview</span>
+            <a href="{{ url_for('main.download_resume', resume_id=resume.id) }}">Download PDF</a>
+        </div>
+    {% endif %}
+    <main class="resume-page">
+        {% set person = resume.personal_info %}
+        <header class="resume-header">
+            <h1>{{ person.full_name if person and person.full_name else "Your Name" }}</h1>
+            <p class="resume-role">{{ resume.role_title }}</p>
+            <div class="resume-contact">
+                {% if person and person.email %}<span>{{ person.email }}</span>{% endif %}
+                {% if person and person.phone %}<span>{{ person.phone }}</span>{% endif %}
+                {% if person and person.location %}<span>{{ person.location }}</span>{% endif %}
+                {% if person and person.linkedin_url %}<a href="{{ person.linkedin_url }}">{{ person.linkedin_url|replace("https://", "")|replace("http://", "") }}</a>{% endif %}
+                {% if person and person.github_url %}<a href="{{ person.github_url }}">{{ person.github_url|replace("https://", "")|replace("http://", "") }}</a>{% endif %}
+            </div>
+        </header>
+
+        {% if person and person.summary %}
+            <section class="resume-section">
+                <h2>Profile</h2>
+                <p class="resume-summary">{{ person.summary }}</p>
+            </section>
+        {% endif %}
+
+        {% if resume.experience %}
+            <section class="resume-section">
+                <h2>Experience</h2>
+                {% for item in resume.experience %}
+                    <article class="resume-entry">
+                        <div class="entry-heading">
+                            <div><h3>{{ item.job_title }}</h3><p class="entry-subtitle">{{ item.company }}{% if item.location %} · {{ item.location }}{% endif %}</p></div>
+                            <p class="entry-dates">
+                                {% if item.start_date %}{{ item.start_date.strftime("%b %Y") }}{% endif %}
+                                {% if item.start_date or item.end_date or item.is_current %} — {% endif %}
+                                {% if item.is_current %}Present{% elif item.end_date %}{{ item.end_date.strftime("%b %Y") }}{% endif %}
+                            </p>
+                        </div>
+                        {% if item.description %}<p class="entry-description">{{ item.description }}</p>{% endif %}
+                    </article>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        {% if resume.education %}
+            <section class="resume-section">
+                <h2>Education</h2>
+                {% for item in resume.education %}
+                    <article class="resume-entry">
+                        <div class="entry-heading">
+                            <div>
+                                <h3>{{ item.degree }}{% if item.field_of_study %}, {{ item.field_of_study }}{% endif %}</h3>
+                                <p class="entry-subtitle">{{ item.institution }}{% if item.gpa %} · GPA {{ item.gpa }}{% endif %}</p>
+                            </div>
+                            <p class="entry-dates">
+                                {% if item.start_date %}{{ item.start_date.strftime("%Y") }}{% endif %}
+                                {% if item.start_date or item.end_date %} — {% endif %}
+                                {% if item.end_date %}{{ item.end_date.strftime("%Y") }}{% endif %}
+                            </p>
+                        </div>
+                    </article>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        {% if resume.skills %}
+            <section class="resume-section">
+                <h2>Skills</h2>
+                {% set categorized = resume.skills|selectattr("category")|groupby("category") %}
+                {% for category, skills in categorized %}
+                    <p class="skill-line"><strong>{{ category }}:</strong> {{ skills|map(attribute="skill_name")|join(", ") }}</p>
+                {% endfor %}
+                {% set uncategorized = resume.skills|rejectattr("category")|map(attribute="skill_name")|list %}
+                {% if uncategorized %}<p class="skill-line">{{ uncategorized|join(", ") }}</p>{% endif %}
+            </section>
+        {% endif %}
+    </main>
+</body>
+</html>

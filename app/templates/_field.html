@@ -1,0 +1,8 @@
+{% macro render_field(field, placeholder=None, rows=None) -%}
+    <div class="form-field">
+        {{ field.label }}
+        {% if rows %}{{ field(rows=rows, placeholder=placeholder or "") }}
+        {% else %}{{ field(placeholder=placeholder or "") }}{% endif %}
+        {% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+    </div>
+{%- endmacro %}

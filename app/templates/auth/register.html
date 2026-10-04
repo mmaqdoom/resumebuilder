@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Create account — ResumeBuilder{% endblock %}
+{% block content %}
+<section class="auth-card">
+    <p class="eyebrow">Start building</p>
+    <h1>Create your account</h1>
+    <p class="muted">Save your profile and build targeted resumes for every role.</p>
+    <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="form-field">
+            {{ form.email.label }}
+            {{ form.email(autocomplete="email", autofocus=true) }}
+            {% for error in form.email.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+        </div>
+        <div class="form-field">
+            {{ form.password.label }}
+            {{ form.password(autocomplete="new-password") }}
+            <small>Use at least 8 characters.</small>
+            {% for error in form.password.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+        </div>
+        <div class="form-field">
+            {{ form.confirm_password.label }}
+            {{ form.confirm_password(autocomplete="new-password") }}
+            {% for error in form.confirm_password.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+        </div>
+        {{ form.submit(class="button button-wide") }}
+    </form>
+    <p class="auth-switch">Already registered? <a href="{{ url_for('main.login') }}">Log in</a></p>
+</section>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}My resumes — ResumeBuilder{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Your workspace</p>
+        <h1>My resumes</h1>
+        <p class="muted">Create a profile for each kind of role you are targeting.</p>
+    </div>
+</div>
+<section class="create-panel">
+    <form class="create-form" action="{{ url_for('main.create_resume') }}" method="post">
+        {{ form.hidden_tag() }}
+        <div class="form-field">
+            {{ form.role_title.label }}
+            {{ form.role_title() }}
+            {% for error in form.role_title.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+        </div>
+        {{ form.submit(class="button") }}
+    </form>
+</section>
+{% if resumes %}
+    <section class="resume-grid" aria-label="Resume profiles">
+        {% for resume in resumes %}
+            <article class="resume-card">
+                <div class="resume-card-top">
+                    <span class="role-icon" aria-hidden="true">{{ resume.role_title[:1]|upper }}</span>
+                    <span class="status-pill">Design 1</span>
+                </div>
+                <h2>{{ resume.role_title }}</h2>
+                <p class="muted">
+                    {% if resume.personal_info and resume.personal_info.full_name %}
+                        {{ resume.personal_info.full_name }}
+                    {% else %}
+                        Add your personal details
+                    {% endif %}
+                </p>
+                <p class="card-date">Updated {{ resume.updated_at.strftime("%b %d, %Y") }}</p>
+                <div class="card-actions">
+                    <a class="button button-small" href="{{ url_for('main.edit_resume', resume_id=resume.id) }}">Edit</a>
+                    <a class="button button-secondary button-small" href="{{ url_for('main.preview_resume', resume_id=resume.id) }}">Preview</a>
+                    <a class="button button-secondary button-small" href="{{ url_for('main.download_resume', resume_id=resume.id) }}">Download PDF</a>
+                </div>
+                <form class="delete-form" action="{{ url_for('main.delete_resume', resume_id=resume.id) }}" method="post" onsubmit="return confirm('Delete this resume profile? This cannot be undone.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="text-button danger-text" type="submit">Delete profile</button>
+                </form>
+            </article>
+        {% endfor %}
+    </section>
+{% else %}
+    <section class="empty-state">
+        <div class="empty-icon" aria-hidden="true">+</div>
+        <h2>Your first resume starts here</h2>
+        <p>Create a role profile above and add your experience, education, and skills.</p>
+    </section>
+{% endif %}
+{% endblock %}

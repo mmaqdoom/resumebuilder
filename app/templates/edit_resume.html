@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% from "_field.html" import render_field %}
+{% block title %}Edit {{ resume.role_title }} — ResumeBuilder{% endblock %}
+{% block content %}
+<div class="editor-heading">
+    <div>
+        <a class="back-link" href="{{ url_for('main.dashboard') }}">← My resumes</a>
+        <p class="eyebrow">Resume profile</p>
+        <h1>Edit your details</h1>
+        <p class="muted">Leave optional sections empty if they do not apply.</p>
+    </div>
+    <div class="editor-actions">
+        <a class="button button-secondary" href="{{ url_for('main.preview_resume', resume_id=resume.id) }}" target="_blank" rel="noopener">Preview</a>
+        <a class="button" href="{{ url_for('main.download_resume', resume_id=resume.id) }}">Download PDF</a>
+    </div>
+</div>
+
+<form method="post" class="resume-editor" novalidate>
+    {{ form.hidden_tag() }}
+    <section class="editor-section">
+        <div class="section-heading">
+            <span class="section-number">01</span>
+            <div><h2>Role and contact</h2><p>How employers can identify and reach you.</p></div>
+        </div>
+        <div class="editor-fields">
+            {{ render_field(form.role_title, "e.g. Product Designer") }}
+            {{ render_field(form.full_name, "Your name") }}
+            {{ render_field(form.email, "name@example.com") }}
+            {{ render_field(form.phone, "+1 555 010 1234") }}
+            {{ render_field(form.location, "City, Country") }}
+            {{ render_field(form.linkedin_url, "https://www.linkedin.com/in/yourname") }}
+            {{ render_field(form.github_url, "https://github.com/yourname") }}
+        </div>
+        {{ render_field(form.summary, "A concise introduction highlighting your strengths and goals.", 4) }}
+    </section>
+
+    <section class="editor-section">
+        <div class="section-heading">
+            <span class="section-number">02</span>
+            <div><h2>Experience</h2><p>Highlight relevant roles and your impact.</p></div>
+        </div>
+        <div id="experience-rows" class="dynamic-rows">
+            {% for entry in form.experience %}
+                <article class="dynamic-row" data-index="{{ loop.index0 }}">
+                    {{ entry.deleted(value="") }}
+                    <div class="row-heading"><h3>Position {{ loop.index }}</h3><button type="button" class="text-button danger-text" data-remove-row>Remove</button></div>
+                    <div class="editor-fields">
+                        {{ render_field(entry.job_title, "e.g. Software Engineering Intern") }}
+                        {{ render_field(entry.company, "Company or organization") }}
+                        {{ render_field(entry.location, "City, Country") }}
+                        {{ render_field(entry.start_date) }}
+                        {{ render_field(entry.end_date) }}
+                    </div>
+                    <label class="checkbox-line">{{ entry.is_current() }} I currently work here</label>
+                    {{ render_field(entry.form.description, "Describe your work and measurable outcomes. Use a new line for each point.", 4) }}
+                </article>
+            {% endfor %}
+        </div>
+        <button type="button" class="button button-secondary add-row" data-add-row="experience-rows">+ Add experience</button>
+        <template id="experience-prototype">
+            <article class="dynamic-row" data-index="__prefix__">
+                <input id="experience-__prefix__-deleted" name="experience-__prefix__-deleted" type="hidden" value="">
+                <div class="row-heading"><h3>New position</h3><button type="button" class="text-button danger-text" data-remove-row>Remove</button></div>
+                <div class="editor-fields">
+                    <div class="form-field"><label for="experience-__prefix__-job_title">Job title</label><input id="experience-__prefix__-job_title" maxlength="120" name="experience-__prefix__-job_title" placeholder="e.g. Software Engineering Intern" type="text" value=""></div>
+                    <div class="form-field"><label for="experience-__prefix__-company">Company</label><input id="experience-__prefix__-company" maxlength="160" name="experience-__prefix__-company" placeholder="Company or organization" type="text" value=""></div>
+                    <div class="form-field"><label for="experience-__prefix__-location">Location</label><input id="experience-__prefix__-location" maxlength="120" name="experience-__prefix__-location" placeholder="City, Country" type="text" value=""></div>
+                    <div class="form-field"><label for="experience-__prefix__-start_date">Start date</label><input id="experience-__prefix__-start_date" name="experience-__prefix__-start_date" type="date" value=""></div>
+                    <div class="form-field"><label for="experience-__prefix__-end_date">End date</label><input id="experience-__prefix__-end_date" name="experience-__prefix__-end_date" type="date" value=""></div>
+                </div>
+                <label class="checkbox-line"><input id="experience-__prefix__-is_current" name="experience-__prefix__-is_current" type="checkbox" value="y"> I currently work here</label>
+                <div class="form-field"><label for="experience-__prefix__-description">Description</label><textarea id="experience-__prefix__-description" maxlength="5000" name="experience-__prefix__-description" placeholder="Describe your work and measurable outcomes. Use a new line for each point." rows="4"></textarea></div>
+            </article>
+        </template>
+    </section>
+
+    <section class="editor-section">
+        <div class="section-heading">
+            <span class="section-number">03</span>
+            <div><h2>Education</h2><p>Add degrees, training, or other relevant study.</p></div>
+        </div>
+        <div id="education-rows" class="dynamic-rows">
+            {% for entry in form.education %}
+                <article class="dynamic-row" data-index="{{ loop.index0 }}">
+                    {{ entry.deleted(value="") }}
+                    <div class="row-heading"><h3>Education {{ loop.index }}</h3><button type="button" class="text-button danger-text" data-remove-row>Remove</button></div>
+                    <div class="editor-fields">
+                        {{ render_field(entry.institution, "University or institution") }}
+                        {{ render_field(entry.degree, "e.g. Bachelor of Science") }}
+                        {{ render_field(entry.field_of_study, "e.g. Computer Science") }}
+                        {{ render_field(entry.start_date) }}
+                        {{ render_field(entry.end_date) }}
+                        {{ render_field(entry.gpa, "Optional") }}
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+        <button type="button" class="button button-secondary add-row" data-add-row="education-rows">+ Add education</button>
+        <template id="education-prototype">
+            <article class="dynamic-row" data-index="__prefix__">
+                <input id="education-__prefix__-deleted" name="education-__prefix__-deleted" type="hidden" value="">
+                <div class="row-heading"><h3>New education</h3><button type="button" class="text-button danger-text" data-remove-row>Remove</button></div>
+                <div class="editor-fields">
+                    <div class="form-field"><label for="education-__prefix__-institution">Institution</label><input id="education-__prefix__-institution" maxlength="160" name="education-__prefix__-institution" placeholder="University or institution" type="text" value=""></div>
+                    <div class="form-field"><label for="education-__prefix__-degree">Degree</label><input id="education-__prefix__-degree" maxlength="120" name="education-__prefix__-degree" placeholder="e.g. Bachelor of Science" type="text" value=""></div>
+                    <div class="form-field"><label for="education-__prefix__-field_of_study">Field of study</label><input id="education-__prefix__-field_of_study" maxlength="120" name="education-__prefix__-field_of_study" placeholder="e.g. Computer Science" type="text" value=""></div>
+                    <div class="form-field"><label for="education-__prefix__-start_date">Start date</label><input id="education-__prefix__-start_date" name="education-__prefix__-start_date" type="date" value=""></div>
+                    <div class="form-field"><label for="education-__prefix__-end_date">End date</label><input id="education-__prefix__-end_date" name="education-__prefix__-end_date" type="date" value=""></div>
+                    <div class="form-field"><label for="education-__prefix__-gpa">GPA</label><input id="education-__prefix__-gpa" maxlength="20" name="education-__prefix__-gpa" placeholder="Optional" type="text" value=""></div>
+                </div>
+            </article>
+        </template>
+    </section>
+
+    <section class="editor-section">
+        <div class="section-heading">
+            <span class="section-number">04</span>
+            <div><h2>Skills</h2><p>Group your skills by type if that helps communicate your strengths.</p></div>
+        </div>
+        <div id="skills-rows" class="dynamic-rows">
+            {% for entry in form.skills %}
+                <article class="dynamic-row compact-row" data-index="{{ loop.index0 }}">
+                    {{ entry.deleted(value="") }}
+                    <div class="row-heading"><h3>Skill {{ loop.index }}</h3><button type="button" class="text-button danger-text" data-remove-row>Remove</button></div>
+                    <div class="editor-fields">
+                        {{ render_field(entry.skill_name, "e.g. Python") }}
+                        {{ render_field(entry.category, "e.g. Programming languages") }}
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+        <button type="button" class="button button-secondary add-row" data-add-row="skills-rows">+ Add skill</button>
+        <template id="skills-prototype">
+            <article class="dynamic-row compact-row" data-index="__prefix__">
+                <input id="skills-__prefix__-deleted" name="skills-__prefix__-deleted" type="hidden" value="">
+                <div class="row-heading"><h3>New skill</h3><button type="button" class="text-button danger-text" data-remove-row>Remove</button></div>
+                <div class="editor-fields">
+                    <div class="form-field"><label for="skills-__prefix__-skill_name">Skill</label><input id="skills-__prefix__-skill_name" maxlength="100" name="skills-__prefix__-skill_name" placeholder="e.g. Python" type="text" value=""></div>
+                    <div class="form-field"><label for="skills-__prefix__-category">Category</label><input id="skills-__prefix__-category" maxlength="100" name="skills-__prefix__-category" placeholder="e.g. Programming languages" type="text" value=""></div>
+                </div>
+            </article>
+        </template>
+    </section>
+    <div class="form-footer">
+        {{ form.submit(class="button") }}
+        <a class="button button-secondary" href="{{ url_for('main.dashboard') }}">Cancel</a>
+    </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dynamic_forms.js') }}" defer></script>
+{% endblock %}

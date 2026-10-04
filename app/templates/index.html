@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}ResumeBuilder — Make your next move{% endblock %}
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">Your experience, tailored</p>
+    <h1>Build a resume for every role you want.</h1>
+    <p class="hero-copy">Keep your professional details in one place, create role-specific profiles, and preview a polished resume before you apply.</p>
+    <div class="hero-actions">
+        <a class="button" href="{{ url_for('main.register') }}">Get started</a>
+        <a class="button button-secondary" href="{{ url_for('main.login') }}">I already have an account</a>
+    </div>
+    <div class="feature-grid">
+        <article class="feature-card">
+            <span class="feature-number">01</span>
+            <h2>One account, many roles</h2>
+            <p>Keep tailored versions for the different opportunities you are pursuing.</p>
+        </article>
+        <article class="feature-card">
+            <span class="feature-number">02</span>
+            <h2>Simple to update</h2>
+            <p>Edit your experience, education, and skills whenever your story changes.</p>
+        </article>
+        <article class="feature-card">
+            <span class="feature-number">03</span>
+            <h2>Preview before you apply</h2>
+            <p>See your information in a clean, print-ready layout.</p>
+        </article>
+    </div>
+</section>
+{% endblock %}
