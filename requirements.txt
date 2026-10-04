@@ -6,4 +6,4 @@ email-validator>=2.2,<3.0
 psycopg[binary]>=3.2,<4.0
 WeasyPrint>=62,<70
 xhtml2pdf>=0.2.17,<0.3.0
-gunicorn>=23.0,<24.0; platform_system != "Windows"
+gunicorn>=23.0,<24.0;  "Windows"
