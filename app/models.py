@@ -29,6 +29,28 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def get_reset_token(self, expires_sec=1800):
+        from flask import current_app
+        from itsdangerous import URLSafeTimedSerializer
+
+        serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+        return serializer.dumps({"user_id": self.id}, salt="password-reset-salt")
+
+    @staticmethod
+    def verify_reset_token(token, expires_sec=1800):
+        from flask import current_app
+        from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
+
+        serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+        try:
+            data = serializer.loads(token, salt="password-reset-salt", max_age=expires_sec)
+        except (SignatureExpired, BadSignature):
+            return None
+        user_id = data.get("user_id")
+        if user_id is None:
+            return None
+        return db.session.get(User, user_id)
+
 
 class ResumeProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)

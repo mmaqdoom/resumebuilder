@@ -52,6 +52,26 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Log in")
 
 
+class RequestResetForm(FlaskForm):
+    email = StringField(
+        "Email address",
+        filters=[_strip_input],
+        validators=[DataRequired(), Email(), Length(max=254)],
+    )
+    submit = SubmitField("Send password reset link")
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField(
+        "New password", validators=[DataRequired(), Length(min=8, max=128)]
+    )
+    confirm_password = PasswordField(
+        "Confirm new password",
+        validators=[DataRequired(), EqualTo("password", message="Passwords must match.")],
+    )
+    submit = SubmitField("Reset password")
+
+
 class CreateResumeForm(FlaskForm):
     role_title = StringField(
         "Target role",

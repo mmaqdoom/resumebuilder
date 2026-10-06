@@ -5,7 +5,7 @@ from unittest.mock import patch
 from pypdf import PdfReader
 
 from app import create_app, db
-from app.models import Education, Experience, ResumeProfile, Skill
+from app.models import Education, Experience, ResumeProfile, Skill, User
 
 
 class TestConfig:
@@ -175,6 +175,63 @@ class ResumeBuilderTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"This field is required.", response.data)
         self.assertEqual(db.session.query(ResumeProfile).count(), 0)
+
+    def test_password_reset_flow(self):
+        self.register(email="user@example.com")
+        self.client.post("/logout")
+
+        # 1. Request reset link
+        response = self.client.get("/reset_password")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Reset your password", response.data)
+
+        # 2. Submit existing email
+        response = self.client.post(
+            "/reset_password",
+            data={"email": "user@example.com"},
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"password reset instructions have been sent", response.data)
+
+        # 3. Verify token and reset password
+        user = db.session.scalar(db.select(User).where(User.email == "user@example.com"))
+        self.assertIsNotNone(user)
+        reset_token = user.get_reset_token()
+        self.assertEqual(User.verify_reset_token(reset_token).id, user.id)
+
+        response = self.client.get(f"/reset_password/{reset_token}")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Choose a new password", response.data)
+
+        # 4. Submit new password
+        response = self.client.post(
+            f"/reset_password/{reset_token}",
+            data={
+                "password": "brand-new-password-123",
+                "confirm_password": "brand-new-password-123",
+            },
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Your password has been reset successfully", response.data)
+
+        # 5. Old password no longer works
+        response = self.client.post(
+            "/login",
+            data={"email": "user@example.com", "password": "secure-password-123"},
+            follow_redirects=True,
+        )
+        self.assertIn(b"Invalid email or password", response.data)
+
+        # 6. New password works
+        response = self.client.post(
+            "/login",
+            data={"email": "user@example.com", "password": "brand-new-password-123"},
+            follow_redirects=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"My resumes", response.data)
 
 
 if __name__ == "__main__":

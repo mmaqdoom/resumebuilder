@@ -20,7 +20,15 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.forms import CreateResumeForm, LoginForm, RegistrationForm, ResumeForm
+from app.email import send_password_reset_email
+from app.forms import (
+    CreateResumeForm,
+    LoginForm,
+    RegistrationForm,
+    RequestResetForm,
+    ResetPasswordForm,
+    ResumeForm,
+)
 from app.models import Education, Experience, PersonalInfo, ResumeProfile, Skill, User, utc_now
 
 main = Blueprint("main", __name__)
@@ -222,6 +230,51 @@ def login():
             flash("Welcome back.", "success")
             return redirect(_safe_next_url(request.args.get("next")) or url_for("main.dashboard"))
     return render_template("auth/login.html", form=form)
+
+
+@main.route("/reset_password", methods=["GET", "POST"])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for("main.dashboard"))
+    form = RequestResetForm()
+    dev_reset_url = None
+    if form.validate_on_submit():
+        email = form.email.data.strip().lower()
+        user = db.session.scalar(select(User).where(User.email == email))
+        if user is not None:
+            token = user.get_reset_token()
+            reset_url = url_for("main.reset_password", token=token, _external=True)
+            sent = send_password_reset_email(user, reset_url)
+            if not sent:
+                dev_reset_url = reset_url
+        flash(
+            "If an account with that email exists, password reset instructions have been sent.",
+            "info",
+        )
+        return render_template(
+            "auth/reset_password_request.html",
+            form=form,
+            dev_reset_url=dev_reset_url,
+            submitted=True,
+        )
+    return render_template("auth/reset_password_request.html", form=form)
+
+
+@main.route("/reset_password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for("main.dashboard"))
+    user = User.verify_reset_token(token)
+    if user is None:
+        flash("That password reset link is invalid or has expired. Please request a new one.", "danger")
+        return redirect(url_for("main.reset_password_request"))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash("Your password has been reset successfully! You can now log in.", "success")
+        return redirect(url_for("main.login"))
+    return render_template("auth/reset_password.html", form=form)
 
 
 @main.route("/logout", methods=["POST"])

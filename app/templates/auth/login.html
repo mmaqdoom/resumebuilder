@@ -130,6 +130,9 @@
                             {{ form.remember(class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary-container") }}
                             <span class="font-body-sm text-body-sm text-on-surface-variant">{{ form.remember.label.text }}</span>
                         </label>
+                        <a href="{{ url_for('main.reset_password_request') }}" class="font-body-sm text-body-sm text-primary hover:text-primary-container font-medium hover:underline">
+                            Forgot password?
+                        </a>
                     </div>
 
                     <button type="submit" class="w-full py-3 px-4 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold tracking-wide flex items-center justify-center gap-2 transition-all shadow-md shadow-primary/20 active:scale-[0.99]">
