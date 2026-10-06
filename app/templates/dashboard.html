@@ -1,58 +1,240 @@
 {% extends "base.html" %}
 {% block title %}My resumes — ResumeBuilder{% endblock %}
+
 {% block content %}
-<div class="page-heading">
-    <div>
-        <p class="eyebrow">Your workspace</p>
-        <h1>My resumes</h1>
-        <p class="muted">Create a profile for each kind of role you are targeting.</p>
-    </div>
-</div>
-<section class="create-panel">
-    <form class="create-form" action="{{ url_for('main.create_resume') }}" method="post">
-        {{ form.hidden_tag() }}
-        <div class="form-field">
-            {{ form.role_title.label }}
-            {{ form.role_title() }}
-            {% for error in form.role_title.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
-        </div>
-        {{ form.submit(class="button") }}
-    </form>
-</section>
-{% if resumes %}
-    <section class="resume-grid" aria-label="Resume profiles">
-        {% for resume in resumes %}
-            <article class="resume-card">
-                <div class="resume-card-top">
-                    <span class="role-icon" aria-hidden="true">{{ resume.role_title[:1]|upper }}</span>
-                    <span class="status-pill">Design 1</span>
+<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
+    <!-- Hero & Creation Header -->
+    <div class="flex flex-col gap-6">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-3">
+                    <h1 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold tracking-tight">My resumes</h1>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm font-semibold">
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                        <span>{{ resumes|length }} Active Profile{% if resumes|length != 1 %}s{% endif %}</span>
+                    </span>
                 </div>
-                <h2>{{ resume.role_title }}</h2>
-                <p class="muted">
-                    {% if resume.personal_info and resume.personal_info.full_name %}
-                        {{ resume.personal_info.full_name }}
-                    {% else %}
-                        Add your personal details
-                    {% endif %}
+                <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+                    Create a profile for each kind of role you are targeting. Tailor your skills, experience, and download print-ready PDFs.
                 </p>
-                <p class="card-date">Updated {{ resume.updated_at.strftime("%b %d, %Y") }}</p>
-                <div class="card-actions">
-                    <a class="button button-small" href="{{ url_for('main.edit_resume', resume_id=resume.id) }}">Edit</a>
-                    <a class="button button-secondary button-small" href="{{ url_for('main.preview_resume', resume_id=resume.id) }}">Preview</a>
-                    <a class="button button-secondary button-small" href="{{ url_for('main.download_resume', resume_id=resume.id) }}">Download PDF</a>
+            </div>
+        </div>
+
+        <!-- Quick Creation Panel -->
+        <div class="relative overflow-hidden rounded-2xl bg-surface-container-lowest border border-outline-variant/40 shadow-sm p-5 sm:p-6 transition-all">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <form action="{{ url_for('main.create_resume') }}" method="post" class="relative flex flex-col gap-4">
+                {{ form.hidden_tag() }}
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[22px]">add_circle</span>
+                        <span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Create a new role profile</span>
+                    </div>
+                    <span class="font-mono-code text-mono-code text-on-surface-variant text-xs hidden sm:inline-block">Instant ATS Calibration Ready</span>
                 </div>
-                <form class="delete-form" action="{{ url_for('main.delete_resume', resume_id=resume.id) }}" method="post" onsubmit="return confirm('Delete this resume profile? This cannot be undone.');">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button class="text-button danger-text" type="submit">Delete profile</button>
-                </form>
-            </article>
-        {% endfor %}
-    </section>
-{% else %}
-    <section class="empty-state">
-        <div class="empty-icon" aria-hidden="true">+</div>
-        <h2>Your first resume starts here</h2>
-        <p>Create a role profile above and add your experience, education, and skills.</p>
-    </section>
-{% endif %}
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div class="relative flex-1">
+                        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">badge</span>
+                        {{ form.role_title(id="quick-role-input", class="w-full h-11 pl-10 pr-4 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant/60 placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container transition-all", placeholder="e.g., Frontend Engineer, Product Analyst, Machine Learning Researcher...") }}
+                    </div>
+                    <button type="submit" class="h-11 px-6 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-semibold flex items-center justify-center gap-2 shadow-sm transition-all shrink-0 active:scale-[0.98]">
+                        <span class="material-symbols-outlined text-[18px]">add</span>
+                        <span>Create Profile</span>
+                    </button>
+                </div>
+
+                {% for error in form.role_title.errors %}
+                    <span class="field-error text-error text-body-sm font-medium flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">error</span>
+                        <span>{{ error }}</span>
+                    </span>
+                {% endfor %}
+
+                <!-- Quick Suggestions Chips -->
+                <div class="flex flex-wrap items-center gap-2 pt-1">
+                    <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Quick Suggestions:</span>
+                    <button type="button" onclick="setQuickRole('Software Engineer')" class="px-2.5 py-1 rounded-lg bg-surface-container-high/60 hover:bg-surface-container-highest text-on-surface font-label-sm text-label-sm transition-colors">
+                        Software Engineer
+                    </button>
+                    <button type="button" onclick="setQuickRole('Full Stack Developer')" class="px-2.5 py-1 rounded-lg bg-surface-container-high/60 hover:bg-surface-container-highest text-on-surface font-label-sm text-label-sm transition-colors">
+                        Full Stack Developer
+                    </button>
+                    <button type="button" onclick="setQuickRole('Data Analyst')" class="px-2.5 py-1 rounded-lg bg-surface-container-high/60 hover:bg-surface-container-highest text-on-surface font-label-sm text-label-sm transition-colors">
+                        Data Analyst
+                    </button>
+                    <button type="button" onclick="setQuickRole('Product Manager')" class="px-2.5 py-1 rounded-lg bg-surface-container-high/60 hover:bg-surface-container-highest text-on-surface font-label-sm text-label-sm transition-colors">
+                        Product Manager
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if resumes %}
+        <!-- Filter & Search Bar -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div class="relative w-full sm:w-80">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+                <input id="resume-search-input" oninput="filterResumes(this.value)" class="w-full h-10 pl-9 pr-3 rounded-xl bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant/60 placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary-container shadow-sm" placeholder="Search profiles by role or title..." type="text"/>
+            </div>
+
+            <div class="text-on-surface-variant font-body-sm text-body-sm self-end sm:self-auto">
+                Showing <span id="visible-count" class="font-semibold text-on-surface">{{ resumes|length }}</span> profile{% if resumes|length != 1 %}s{% endif %}
+            </div>
+        </div>
+
+        <!-- Resume Cards Grid (3 Columns) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 resume-grid" aria-label="Resume profiles" id="resumes-container">
+            {% for resume in resumes %}
+                <article class="group relative rounded-2xl bg-surface-container-lowest border border-outline-variant/40 p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all resume-card" data-role="{{ resume.role_title|lower }}">
+                    <div class="flex flex-col gap-4">
+                        <!-- Top Row -->
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 h-10 rounded-xl bg-primary-container text-on-primary flex items-center justify-center font-headline-sm text-headline-sm font-bold shadow-sm shrink-0">
+                                    {{ resume.role_title[:1]|upper }}
+                                </div>
+                                <div class="flex flex-col min-w-0">
+                                    <h2 class="font-headline-sm text-lg text-on-surface font-bold truncate group-hover:text-primary transition-colors">
+                                        {{ resume.role_title }}
+                                    </h2>
+                                    <div class="flex items-center gap-1.5 mt-0.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                        <span class="font-mono-code text-[11px] text-on-surface-variant">Design 1 (Simple ATS)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Status Pill -->
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm font-semibold shrink-0">
+                                <span class="material-symbols-outlined text-[13px]">verified</span>
+                                <span>ATS Ready</span>
+                            </span>
+                        </div>
+
+                        <!-- Document Mini Canvas Thumbnail Mockup -->
+                        <a href="{{ url_for('main.edit_resume', resume_id=resume.id) }}" class="relative w-full h-32 rounded-xl bg-surface-container-low overflow-hidden p-3 flex flex-col gap-1.5 select-none shadow-inner border border-outline-variant/30 hover:border-primary-container/60 transition-colors">
+                            <div class="flex items-center justify-between pb-1 border-b border-outline-variant/30">
+                                <div class="h-2 w-28 bg-primary/40 rounded"></div>
+                                <div class="h-1.5 w-16 bg-outline-variant rounded"></div>
+                            </div>
+                            <div class="h-1.5 w-full bg-outline-variant/40 rounded"></div>
+                            <div class="h-1.5 w-5/6 bg-outline-variant/30 rounded"></div>
+                            <div class="grid grid-cols-2 gap-2 my-1">
+                                <div class="h-6 bg-surface-container-lowest rounded p-1 flex flex-col gap-1">
+                                    <div class="h-1.5 w-12 bg-primary/30 rounded"></div>
+                                    <div class="h-1 w-full bg-outline-variant/30 rounded"></div>
+                                </div>
+                                <div class="h-6 bg-surface-container-lowest rounded p-1 flex flex-col gap-1">
+                                    <div class="h-1.5 w-14 bg-primary/30 rounded"></div>
+                                    <div class="h-1 w-4/5 bg-outline-variant/30 rounded"></div>
+                                </div>
+                            </div>
+                            <span class="absolute bottom-2 right-2 text-on-surface-variant font-mono-code text-[10px] bg-surface-container-lowest/90 px-1.5 py-0.5 rounded shadow-sm">1 Page (A4)</span>
+                        </a>
+
+                        <!-- Candidate Summary Snippet -->
+                        <div class="flex flex-col gap-1.5">
+                            <div class="font-label-md text-label-md text-on-surface font-semibold">
+                                {% if resume.personal_info and resume.personal_info.full_name %}
+                                    {{ resume.personal_info.full_name }}
+                                {% else %}
+                                    <span class="text-outline italic">Personal details not set</span>
+                                {% endif %}
+                            </div>
+
+                            {% if resume.skills %}
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    {% for skill in resume.skills[:3] %}
+                                        <span class="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant font-mono-code text-[11px]">
+                                            {{ skill.skill_name }}
+                                        </span>
+                                    {% endfor %}
+                                    {% if resume.skills|length > 3 %}
+                                        <span class="px-1.5 py-0.5 rounded-md bg-surface-container-high text-on-surface-variant font-mono-code text-[10px]">
+                                            +{{ resume.skills|length - 3 }} more
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Card Footer Actions -->
+                    <div class="pt-4 mt-4 flex items-center justify-between border-t border-surface-container-high">
+                        <span class="font-body-sm text-[12px] text-on-surface-variant flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">schedule</span>
+                            <span>Updated {{ resume.updated_at.strftime("%b %d, %Y") }}</span>
+                        </span>
+
+                        <div class="flex items-center gap-1.5">
+                            <a href="{{ url_for('main.edit_resume', resume_id=resume.id) }}" class="button button-small px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm">
+                                Edit
+                            </a>
+                            <a href="{{ url_for('main.preview_resume', resume_id=resume.id) }}" class="button button-secondary button-small p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Preview Resume">
+                                <span class="material-symbols-outlined text-[18px]">visibility</span>
+                            </a>
+                            <a href="{{ url_for('main.download_resume', resume_id=resume.id) }}" class="button button-secondary button-small p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" title="Download PDF">
+                                <span class="material-symbols-outlined text-[18px]">download</span>
+                            </a>
+                            <form class="inline-block delete-form" action="{{ url_for('main.delete_resume', resume_id=resume.id) }}" method="post" onsubmit="return confirm('Delete this resume profile? This cannot be undone.');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="p-1.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container/20 transition-colors" title="Delete Profile">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </section>
+    {% else %}
+        <!-- Empty State -->
+        <section class="rounded-3xl bg-surface-container-lowest border-2 border-dashed border-outline-variant/60 p-12 text-center max-w-xl mx-auto my-8 flex flex-col items-center empty-state">
+            <div class="w-16 h-16 rounded-2xl bg-primary-fixed text-primary flex items-center justify-center mb-4 empty-icon">
+                <span class="material-symbols-outlined text-[32px]">note_add</span>
+            </div>
+            <h2 class="font-headline-lg text-2xl text-on-surface font-bold tracking-tight mb-2">Your first resume starts here</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-md mb-6 leading-relaxed">
+                Create a role profile above and add your experience, education, and skills. You can generate multiple profiles for different opportunities.
+            </p>
+            <button type="button" onclick="document.getElementById('quick-role-input').focus()" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-semibold flex items-center gap-2 shadow-sm transition-all">
+                <span class="material-symbols-outlined text-[18px]">add</span>
+                <span>Get started with a role title</span>
+            </button>
+        </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function setQuickRole(role) {
+        const input = document.getElementById('quick-role-input');
+        if (input) {
+            input.value = role;
+            input.focus();
+        }
+    }
+
+    function filterResumes(query) {
+        const term = query.toLowerCase().trim();
+        const cards = document.querySelectorAll('.resume-card');
+        let visible = 0;
+        cards.forEach(card => {
+            const role = card.getAttribute('data-role') || '';
+            const text = card.textContent.toLowerCase();
+            if (!term || role.includes(term) || text.includes(term)) {
+                card.style.display = '';
+                visible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        const countEl = document.getElementById('visible-count');
+        if (countEl) countEl.textContent = visible;
+    }
+</script>
 {% endblock %}

@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Flask (ResumeBuilder)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run.py",
+            "env": {
+                "FLASK_DEBUG": "true",
+                "HOST": "0.0.0.0",
+                "PORT": "5000"
+            },
+            "console": "integratedTerminal",
+            "jinja": true
+        }
+    ]
+}
+

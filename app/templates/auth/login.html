@@ -1,24 +1,157 @@
 {% extends "base.html" %}
+{% from "_field.html" import render_field %}
 {% block title %}Log in — ResumeBuilder{% endblock %}
+
 {% block content %}
-<section class="auth-card">
-    <p class="eyebrow">Welcome back</p>
-    <h1>Log in to ResumeBuilder</h1>
-    <form method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <div class="form-field">
-            {{ form.email.label }}
-            {{ form.email(autocomplete="email", autofocus=true) }}
-            {% for error in form.email.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+<div class="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div class="w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl bg-surface-container-lowest grid grid-cols-1 lg:grid-cols-12 border border-outline-variant/40">
+        <!-- LEFT COLUMN: Deep Branded Showcase Panel (45% on desktop) -->
+        <div class="lg:col-span-5 bg-on-background text-inverse-on-surface p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden">
+            <!-- Glow & Ambient Background Effects -->
+            <div class="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-primary-container/20 blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-10 right-0 w-72 h-72 rounded-full bg-tertiary-container/15 blur-3xl pointer-events-none"></div>
+
+            <!-- Top Branding Section -->
+            <div class="relative z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center shadow-lg shadow-primary/20">
+                        <span class="material-symbols-outlined text-on-primary text-[22px]">description</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-headline-sm text-headline-sm text-surface-container-lowest font-bold tracking-tight">ResumeBuilder</span>
+                            <span class="px-2 py-0.5 rounded-full bg-primary/30 text-primary-fixed text-label-sm font-label-sm uppercase tracking-wider">v2.4</span>
+                        </div>
+                        <p class="font-body-sm text-body-sm text-surface-dim">Early-Career &amp; Student Workspace</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-highest/10 backdrop-blur-md">
+                    <span class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></span>
+                    <span class="font-label-md text-label-md text-surface-container-high">Recruiting Season Ready</span>
+                </div>
+            </div>
+
+            <!-- Center Focal: Real-time ATS Preview Card -->
+            <div class="relative z-10 my-8 space-y-6">
+                <!-- Floating Live ATS Engine Micro-Card -->
+                <div class="bg-inverse-surface/80 backdrop-blur-xl rounded-xl p-5 shadow-2xl border border-surface-container-high/10 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+                            <span class="font-label-md text-label-md text-surface-container-high font-medium">Target: Software &amp; Systems</span>
+                        </div>
+                        <span class="font-mono-code text-mono-code text-secondary-fixed flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">bolt</span> 12ms tuned
+                        </span>
+                    </div>
+
+                    <!-- ATS Score Pill -->
+                    <div class="flex items-center justify-between bg-surface-container-lowest/5 p-3 rounded-lg">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-secondary-fixed text-[18px]">verified</span>
+                            </div>
+                            <div>
+                                <div class="font-headline-sm text-headline-sm text-surface-container-lowest font-bold">98<span class="text-body-sm font-normal text-surface-dim">/100</span></div>
+                                <div class="font-body-sm text-body-sm text-secondary-fixed-dim">ATS Keyword Match Verified</div>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full bg-secondary/30 text-secondary-fixed font-label-sm text-label-sm font-semibold">Ready</span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        <span class="px-2 py-0.5 rounded-md bg-surface-container-highest/10 text-surface-container-high font-mono-code text-[11px]">Python</span>
+                        <span class="px-2 py-0.5 rounded-md bg-surface-container-highest/10 text-surface-container-high font-mono-code text-[11px]">Distributed Systems</span>
+                        <span class="px-2 py-0.5 rounded-md bg-surface-container-highest/10 text-surface-container-high font-mono-code text-[11px]">REST APIs</span>
+                    </div>
+                </div>
+
+                <!-- Student Success Quote -->
+                <div class="space-y-3 pt-2">
+                    <blockquote class="font-body-md text-surface-container leading-relaxed italic">
+                        “Being able to maintain multiple profiles for Backend vs. Data in one dashboard helped me land my dream internship with zero hassle.”
+                    </blockquote>
+                    <div class="flex items-center gap-2">
+                        <span class="font-headline-sm text-headline-sm text-surface-container-lowest font-semibold">Jordan Lee</span>
+                        <span class="material-symbols-outlined text-secondary-fixed text-[16px]">check_circle</span>
+                        <span class="font-body-sm text-body-sm text-surface-dim">Senior CS Student</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Trust Marquee -->
+            <div class="relative z-10 pt-4 border-t border-surface-container-highest/10">
+                <p class="font-label-sm text-label-sm text-surface-dim uppercase tracking-widest mb-2">Trusted by students at</p>
+                <div class="flex items-center gap-4 text-surface-container-high font-body-sm font-medium opacity-80">
+                    <span>Stanford</span>
+                    <span>•</span>
+                    <span>Berkeley</span>
+                    <span>•</span>
+                    <span>MIT</span>
+                    <span>•</span>
+                    <span>CMU</span>
+                </div>
+            </div>
         </div>
-        <div class="form-field">
-            {{ form.password.label }}
-            {{ form.password(autocomplete="current-password") }}
-            {% for error in form.password.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+
+        <!-- RIGHT COLUMN: Authentication Workstation (55% on desktop) -->
+        <div class="lg:col-span-7 bg-surface-container-lowest px-6 sm:px-12 py-10 lg:py-12 flex flex-col justify-between">
+            <div class="w-full max-w-md mx-auto my-auto">
+                <!-- Tab Switcher -->
+                <div class="p-1 bg-surface-container-low rounded-xl flex items-center mb-8">
+                    <a href="{{ url_for('main.register') }}" class="flex-1 py-2 px-3 rounded-lg font-label-md text-label-md text-center transition-all text-on-surface-variant hover:text-on-surface font-medium">
+                        Create Account
+                    </a>
+                    <a href="{{ url_for('main.login') }}" class="flex-1 py-2 px-3 rounded-lg font-label-md text-label-md text-center transition-all bg-surface-container-lowest text-primary shadow-sm font-semibold">
+                        Sign In
+                    </a>
+                </div>
+
+                <!-- Header Content -->
+                <div class="space-y-1.5 mb-6">
+                    <h1 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold tracking-tight">
+                        Welcome back
+                    </h1>
+                    <p class="font-body-md text-body-md text-on-surface-variant">
+                        Sign in to manage and edit your role-specific resumes.
+                    </p>
+                </div>
+
+                <!-- Form -->
+                <form class="space-y-5" method="post" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    {{ render_field(form.email, "name@example.com") }}
+                    {{ render_field(form.password, "••••••••••••") }}
+
+                    <div class="flex items-center justify-between pt-1">
+                        <label class="flex items-center gap-2 cursor-pointer select-none">
+                            {{ form.remember(class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary-container") }}
+                            <span class="font-body-sm text-body-sm text-on-surface-variant">{{ form.remember.label.text }}</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 px-4 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold tracking-wide flex items-center justify-center gap-2 transition-all shadow-md shadow-primary/20 active:scale-[0.99]">
+                        <span>Sign in to workspace</span>
+                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </button>
+                </form>
+
+                <p class="mt-8 text-center font-body-sm text-body-sm text-on-surface-variant">
+                    Don't have an account yet? 
+                    <a href="{{ url_for('main.register') }}" class="text-primary font-semibold hover:underline">
+                        Create an account
+                    </a>
+                </p>
+            </div>
+
+            <!-- Bottom Security Micro Badge -->
+            <div class="w-full max-w-md mx-auto pt-6 flex items-center justify-center gap-2 text-on-surface-variant font-body-sm text-body-sm text-center">
+                <span class="material-symbols-outlined text-secondary text-[16px]">verified_user</span>
+                <span>Protected sessions • Direct PDF exports • Privacy first</span>
+            </div>
         </div>
-        <label class="checkbox-line">{{ form.remember() }} Remember me</label>
-        {{ form.submit(class="button button-wide") }}
-    </form>
-    <p class="auth-switch">New here? <a href="{{ url_for('main.register') }}">Create an account</a></p>
-</section>
+    </div>
+</div>
 {% endblock %}

@@ -1,8 +1,27 @@
 {% macro render_field(field, placeholder=None, rows=None) -%}
-    <div class="form-field">
-        {{ field.label }}
-        {% if rows %}{{ field(rows=rows, placeholder=placeholder or "") }}
-        {% else %}{{ field(placeholder=placeholder or "") }}{% endif %}
-        {% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+    <div class="form-field flex flex-col gap-1.5">
+        {% if field.type != "HiddenField" and field.type != "BooleanField" %}
+            <label for="{{ field.id }}" class="block font-label-md text-label-md text-on-surface font-medium">
+                {{ field.label.text }}
+            </label>
+        {% endif %}
+        
+        {% if rows %}
+            {{ field(rows=rows, placeholder=placeholder or "", class="w-full px-3.5 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant/60 focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary-container transition-all resize-y") }}
+        {% elif field.type == "BooleanField" %}
+            <label class="flex items-center gap-2 cursor-pointer select-none font-body-md text-body-md text-on-surface">
+                {{ field(class="w-4 h-4 rounded text-primary focus:ring-0 accent-primary-container") }}
+                <span>{{ field.label.text }}</span>
+            </label>
+        {% else %}
+            {{ field(placeholder=placeholder or "", class="w-full px-3.5 py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant/60 focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary-container transition-all") }}
+        {% endif %}
+        
+        {% for error in field.errors %}
+            <span class="field-error text-error text-body-sm font-medium flex items-center gap-1 mt-0.5">
+                <span class="material-symbols-outlined text-[14px]">error</span>
+                <span>{{ error }}</span>
+            </span>
+        {% endfor %}
     </div>
 {%- endmacro %}
