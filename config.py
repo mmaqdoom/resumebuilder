@@ -18,10 +18,19 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024
 
-    # Email configuration
+    # Resend API Configuration (Recommended & Secure)
+    RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+    RESEND_FROM_EMAIL = os.environ.get(
+        "RESEND_FROM_EMAIL",
+        os.environ.get("MAIL_DEFAULT_SENDER", "ResumeBuilder <onboarding@resend.dev>"),
+    )
+
+    # Legacy SMTP Configuration (Fallback)
     MAIL_SERVER = os.environ.get("MAIL_SERVER")
     MAIL_PORT = int(os.environ.get("MAIL_PORT", "587"))
     MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "true").lower() == "true"
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
-    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", "noreply@resumebuilder.com")
+    MAIL_DEFAULT_SENDER = os.environ.get(
+        "MAIL_DEFAULT_SENDER", "ResumeBuilder <noreply@resumebuilder.com>"
+    )

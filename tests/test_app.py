@@ -233,6 +233,26 @@ class ResumeBuilderTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"My resumes", response.data)
 
+    @patch("urllib.request.urlopen")
+    def test_resend_email_api_integration(self, mock_urlopen):
+        from app.email import send_password_reset_email
+
+        self.app.config["RESEND_API_KEY"] = "re_test_123456"
+        self.app.config["RESEND_FROM_EMAIL"] = "ResumeBuilder <onboarding@resend.dev>"
+
+        mock_response = unittest.mock.MagicMock()
+        mock_response.read.return_value = b'{"id": "msg_12345"}'
+        mock_response.__enter__.return_value = mock_response
+        mock_urlopen.return_value = mock_response
+
+        user = User(email="applicant@example.com")
+        sent = send_password_reset_email(user, "https://example.com/reset_password/token123")
+        self.assertTrue(sent)
+        self.assertTrue(mock_urlopen.called)
+        req = mock_urlopen.call_args[0][0]
+        self.assertEqual(req.full_url, "https://api.resend.com/emails")
+        self.assertEqual(req.headers["Authorization"], "Bearer re_test_123456")
+
 
 if __name__ == "__main__":
     unittest.main()
