@@ -247,6 +247,8 @@ def reset_password_request():
             sent = send_password_reset_email(user, reset_url)
             if not sent:
                 dev_reset_url = reset_url
+        else:
+            current_app.logger.warning("Password reset requested for unregistered email: %s", email)
         flash(
             "If an account with that email exists, password reset instructions have been sent.",
             "info",
