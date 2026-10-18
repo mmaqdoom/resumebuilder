@@ -6,6 +6,21 @@ def get_database_url():
     database_url = (
         os.environ.get("NEON_DATABASE_URL")
         or os.environ.get("DATABASE_URL")
+        or os.environ.get("Database_Url")
+    )
+    if not database_url:
+        for key, val in os.environ.items():
+            if key.lower() == "neon_database_url" and val.strip():
+                database_url = val.strip()
+                break
+        if not database_url:
+            for key, val in os.environ.items():
+                if key.lower() == "database_url" and val.strip():
+                    database_url = val.strip()
+                    break
+
+    database_url = (
+        (database_url and database_url.strip())
         or f"sqlite:///{Path(__file__).resolve().parent / 'instance' / 'resume_builder.db'}"
     )
     if database_url.startswith("postgres://"):
@@ -19,6 +34,10 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-me")
     SQLALCHEMY_DATABASE_URI = get_database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+    }
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024
 
     # Resend API Configuration (Recommended & Secure)
